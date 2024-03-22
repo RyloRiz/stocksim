@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "stocksim"
+version = "0.1.0"
+description = ""
+authors = ["RyloRiz <91710711+RyloRiz@users.noreply.github.com>"]
+readme = "README.md"
+#packages = [{include = "stocksim"}]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+numpy = "^1.26.4"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
