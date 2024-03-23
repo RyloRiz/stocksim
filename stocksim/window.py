@@ -1,4 +1,3 @@
-import datetime
 import locale
 import random
 import time
@@ -12,9 +11,10 @@ BG_LIGHT = "gray12"
 FG_MAIN = "white"
 FG_GREEN = "#86df8c"
 FG_RED = "#df635e"
+FG_NEUTRAL = "gray60"
 HL_MAIN = "gray30"
 
-INTERVAL = 1  # in seconds
+INTERVAL = 5  # in seconds
 
 locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
 
@@ -23,6 +23,13 @@ class Window:
     window: tk.Tk
 
     def __init__(self):
+        self.action_buy = None
+        self.action_body_frame = None
+        self.board_title_label_change = None
+        self.board_title_label_price = None
+        self.timelbl = None
+        self.openclose = None
+        self.loop = 0
         self.board_title_label_rec = None
         self.action_sell = None
         self.leaderboard_entries = []
@@ -102,7 +109,12 @@ class Window:
             x = 12.5 + (112.5 * t)
             my_stock = tk.Frame(self.title_frame, background=BG_LIGHT)
             my_stock.place(x=x, y=12.5, width=100, height=100)
-            self.stock_displays.append(my_stock)
+
+            self.stock_displays.append([my_stock])
+
+            # for i in range(len(self.backend.my_stocks)):
+            #     my_stock = self.backend.my_stocks[i]
+            #
 
         self.openclose = tk.Label(self.title_frame, text="Market Open", font=self.FONT_THIN_LG,
                                   foreground=FG_GREEN, background=BG_MAIN)
@@ -223,7 +235,7 @@ class Window:
             if self.backend.stocks[ticker]['trend'] > 0 \
             else FG_RED \
             if self.backend.stocks[ticker]['trend'] < 0 \
-            else "gray60"
+            else FG_NEUTRAL
         change_fmt = round(change, 2)
         sign = "+" if change > 0 else ""
 
@@ -330,21 +342,18 @@ class Window:
     #     self.action_title_label = tk.Label(self.action_title_frame, text="", font=self.FONT_BOLD_SM)
     #     self.action_title_label.pack(side=tk.LEFT, pady=10, fill=tk.X)
 
+    def interval(self):
+        if self.loop % INTERVAL == 0:
+            self.round()
+
+        self.update_time()
+
+        self.loop += 1
+
+        self.window.after(1000, self.interval)
+
     def run(self):
-        self.loop = 0
-
-        def interval():
-
-            if self.loop % 15 == 0:
-                self.round()
-
-            self.update_time()
-
-            self.loop += 1
-
-            self.window.after(1000, interval)
-
-        self.window.after(0, interval)
+        self.window.after(0, self.interval)
         self.window.mainloop()
 
     def stop(self):

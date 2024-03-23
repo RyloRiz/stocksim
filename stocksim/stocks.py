@@ -3,7 +3,6 @@ import random
 import sys
 import numpy
 
-
 LOW = (1, 7)
 MED = (7, 15)
 HIGH = (15, 30)
@@ -86,15 +85,15 @@ class Stocks:
         }
 
         self.my_stocks = {
-            'AAPL': 0,
-            'GOOG': 0,
-            'MSFT': 0,
-            'AMZN': 0,
-            'TSLA': 0,
-            'NVDA': 0,
-            'FOMOCO': 0,
-            'MCD': 0,
-            'NFLX': 0
+            'AAPL': {'amount': 0, 'buying_price': 0},
+            'GOOG': {'amount': 0, 'buying_price': 0},
+            'MSFT': {'amount': 0, 'buying_price': 0},
+            'AMZN': {'amount': 0, 'buying_price': 0},
+            'TSLA': {'amount': 0, 'buying_price': 0},
+            'NVDA': {'amount': 0, 'buying_price': 0},
+            'FOMOCO': {'amount': 0, 'buying_price': 0},
+            'MCD': {'amount': 0, 'buying_price': 0},
+            'NFLX': {'amount': 0, 'buying_price': 0}
         }
 
         self.my_cash = 100
@@ -154,6 +153,7 @@ class Stocks:
             self.stocks[ticker]['price'] += d
             self.stocks[ticker]['price'] = numpy.clip(self.stocks[ticker]['price'], 0, 10000)
 
+            #  Source: https://stackoverflow.com/a/30926930/18007885
             def get_change(current, previous):
                 if current == previous:
                     return 0
