@@ -4,7 +4,6 @@ version = "0.1.0"
 description = ""
 authors = ["RyloRiz <91710711+RyloRiz@users.noreply.github.com>"]
 readme = "README.md"
-#packages = [{include = "stocksim"}]
 
 [tool.poetry.dependencies]
 python = "^3.12"
