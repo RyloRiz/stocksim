@@ -15,7 +15,7 @@ FG_RED = "#df635e"
 FG_NEUTRAL = "gray60"
 HL_MAIN = "gray30"
 
-INTERVAL = 1  # in seconds
+INTERVAL = 5  # in seconds
 
 locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
 
