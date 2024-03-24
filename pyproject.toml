@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "stocksim"
-version = "1.0.0"
+version = "1.0.1"
 description = "A stock market simulator written in Python & tkinter"
 authors = ["RyloRiz <91710711+RyloRiz@users.noreply.github.com>"]
 maintainers = ["RyloRiz <91710711+RyloRiz@users.noreply.github.com>"]
