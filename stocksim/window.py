@@ -25,15 +25,14 @@ def format_stock(stock, color=True, change=True, price=True, recommendation=True
     s = stock['sign'] = "+" if stock['change'] > 0 else ""
 
     if color:
-        color = ""
         if stock['trend'] > 0:
-            color = FG_GREEN
+            new_color = FG_GREEN
         elif stock['trend'] < 0:
-            color = FG_RED
+            new_color = FG_RED
         else:
-            color = FG_NEUTRAL
+            new_color = FG_NEUTRAL
 
-        formatted['color'] = color
+        formatted['color'] = new_color
 
     if change:
         formatted['change'] = f"{s}{str(stock['change'])}%"
@@ -42,7 +41,6 @@ def format_stock(stock, color=True, change=True, price=True, recommendation=True
         formatted['price'] = locale.currency(stock['price'], grouping=True, symbol=True)
 
     if recommendation:
-        rec = ""
         trend = stock['trend']
         if trend == 3:
             rec = "Strong Buy"
@@ -85,6 +83,23 @@ class Window:
     window: tk.Tk
 
     def __init__(self):
+        self.amount_inc_ALL_btn = None
+        self.amount_inc_50_btn = None
+        self.amount_inc_20_btn = None
+        self.amount_inc_15_btn = None
+        self.amount_inc_10_btn = None
+        self.amount_inc_5_btn = None
+        self.amount_inc_2_btn = None
+        self.amount_inc_1_btn = None
+        self.feedback_lbl = None
+        self.submit_btn = None
+        self.registered_validate_amount = None
+        self.amount_input = None
+        self.var_amount = None
+        self.amount_input_lbl = None
+        self.registered_validate_ticker = None
+        self.var_ticker = None
+        self.ticker_input_lbl = None
         self.ticker_input = None
         self.cash_title_lbl = None
         self.cash_lbl = None
@@ -115,6 +130,7 @@ class Window:
         self.time = time.localtime(time.time())
         self.amount_lbls = {}
         self.last_updated_feedback = 0
+        self.toggles = {}
 
         self.window = tk.Tk(screenName="StockSim", baseName="StockSim", className="StockSim")
         self.window.geometry("800x713")
@@ -245,7 +261,7 @@ class Window:
 
         self.action_body_frame = tk.Frame(self.action_frame, background=BG_LIGHT, highlightbackground=HL_MAIN,
                                           highlightthickness=1, highlightcolor=HL_MAIN)
-        self.action_body_frame.place(x=0, y=80, width=400, height=320, anchor=tk.NW)
+        self.action_body_frame.place(x=0, y=80, width=400, height=360, anchor=tk.NW)
 
         # self.action_title_label = tk.Button(self.action_title_frame, text="Buy", font=self.FONT_BOLD_MD,
         #                                     foreground=FG_MAIN, background=BG_MAIN, justify=tk.CENTER,
@@ -261,7 +277,7 @@ class Window:
                                      highlightthickness=0,
                                      activeforeground=BG_MAIN, activebackground=FG_MAIN,
                                      focuscolor=HL_MAIN,
-                                     foreground=FG_MAIN, background=BG_MAIN,
+                                     foreground=FG_MAIN, background=BG_MAIN, cursor='hand2',
                                      # overforeground=FG_MAIN, overbackground=BG_MAIN,
                                      command=lambda: self.set_current_action("Buy"))
         self.action_buy.place(x=125, y=40, width=100, height=40, anchor=tk.CENTER)
@@ -272,7 +288,7 @@ class Window:
                                       highlightthickness=0,
                                       activeforeground=BG_MAIN, activebackground=FG_MAIN,
                                       focuscolor=HL_MAIN,
-                                      foreground=FG_MAIN, background=BG_MAIN,
+                                      foreground=FG_MAIN, background=BG_MAIN, cursor='hand2',
                                       # overforeground=FG_MAIN, overbackground=BG_MAIN,
                                       command=lambda: self.set_current_action("Sell"))
         self.action_sell.place(x=275, y=40, width=100, height=40, anchor=tk.CENTER)
@@ -283,8 +299,8 @@ class Window:
 
         self.var_ticker = tk.StringVar(value='SHEL')
         self.ticker_input = tk.Entry(self.action_body_frame, textvariable=self.var_ticker, font=self.FONT_BOLD_SM,
-                                     relief='flat', borderwidth=0, bd=0, highlightthickness=0,
-                                     foreground=FG_MAIN, background=BG_MAIN, justify=tk.CENTER)
+                                     relief='flat', borderwidth=0, bd=0, highlightthickness=0, insertbackground='white',
+                                     foreground=FG_MAIN, background=BG_MAIN, justify=tk.CENTER, cursor='xterm')
         self.registered_validate_ticker = self.ticker_input.register(self.validate_ticker)
         self.ticker_input.config(validate='focusout',
                                  validatecommand=(self.registered_validate_ticker, '%P'))
@@ -296,12 +312,105 @@ class Window:
 
         self.var_amount = tk.StringVar(value='0')
         self.amount_input = tk.Entry(self.action_body_frame, textvariable=self.var_amount, font=self.FONT_BOLD_SM,
-                                     relief='flat', borderwidth=0, bd=0, highlightthickness=0,
-                                     foreground=FG_MAIN, background=BG_MAIN, justify=tk.CENTER)
+                                     relief='flat', borderwidth=0, bd=0, highlightthickness=0, insertbackground='white',
+                                     foreground=FG_MAIN, background=BG_MAIN, justify=tk.CENTER, cursor='xterm')
         self.registered_validate_amount = self.ticker_input.register(validate_amount)
         self.amount_input.config(validate='focusout',
                                  validatecommand=(self.registered_validate_amount, '%P'))
         self.amount_input.place(x=237.5, y=75, width=125, height=40)
+
+        self.amount_inc_1_btn = tkm.Button(self.action_body_frame, text="1", font=self.FONT_BOLD_SM,
+                                           overrelief='flat', relief='flat', borderwidth=0, bd=0, borderless=True,
+                                           anchor=tk.CENTER,
+                                           highlightthickness=0,
+                                           activeforeground=BG_MAIN, activebackground=FG_MAIN,
+                                           focuscolor=HL_MAIN,
+                                           foreground=FG_MAIN, background=BG_MAIN, cursor='hand2',
+                                           command=lambda: self.toggle_amount(1))
+        self.amount_inc_1_btn.place(x=238, y=117, width=30, height=30)
+
+        self.amount_inc_2_btn = tkm.Button(self.action_body_frame, text="2", font=self.FONT_BOLD_SM,
+                                           overrelief='flat', relief='flat', borderwidth=0, bd=0, borderless=True,
+                                           anchor=tk.CENTER,
+                                           highlightthickness=0,
+                                           activeforeground=BG_MAIN, activebackground=FG_MAIN,
+                                           focuscolor=HL_MAIN,
+                                           foreground=FG_MAIN, background=BG_MAIN, cursor='hand2',
+                                           command=lambda: self.toggle_amount(2))
+        self.amount_inc_2_btn.place(x=268, y=117, width=30, height=30)
+
+        self.amount_inc_5_btn = tkm.Button(self.action_body_frame, text="5", font=self.FONT_BOLD_SM,
+                                           overrelief='flat', relief='flat', borderwidth=0, bd=0, borderless=True,
+                                           anchor=tk.CENTER,
+                                           highlightthickness=0,
+                                           activeforeground=BG_MAIN, activebackground=FG_MAIN,
+                                           focuscolor=HL_MAIN,
+                                           foreground=FG_MAIN, background=BG_MAIN, cursor='hand2',
+                                           command=lambda: self.toggle_amount(5))
+        self.amount_inc_5_btn.place(x=298, y=117, width=30, height=30)
+
+        self.amount_inc_10_btn = tkm.Button(self.action_body_frame, text="10", font=self.FONT_BOLD_SM,
+                                            overrelief='flat', relief='flat', borderwidth=0, bd=0, borderless=True,
+                                            anchor=tk.CENTER,
+                                            highlightthickness=0,
+                                            activeforeground=BG_MAIN, activebackground=FG_MAIN,
+                                            focuscolor=HL_MAIN,
+                                            foreground=FG_MAIN, background=BG_MAIN, cursor='hand2',
+                                            command=lambda: self.toggle_amount(10))
+        self.amount_inc_10_btn.place(x=328, y=117, width=34, height=30)
+
+        self.amount_inc_15_btn = tkm.Button(self.action_body_frame, text="15", font=self.FONT_BOLD_SM,
+                                            overrelief='flat', relief='flat', borderwidth=0, bd=0, borderless=True,
+                                            anchor=tk.CENTER,
+                                            highlightthickness=0,
+                                            activeforeground=BG_MAIN, activebackground=FG_MAIN,
+                                            focuscolor=HL_MAIN,
+                                            foreground=FG_MAIN, background=BG_MAIN, cursor='hand2',
+                                            command=lambda: self.toggle_amount(15))
+        self.amount_inc_15_btn.place(x=238, y=147, width=30, height=30)
+
+        self.amount_inc_20_btn = tkm.Button(self.action_body_frame, text="20", font=self.FONT_BOLD_SM,
+                                            overrelief='flat', relief='flat', borderwidth=0, bd=0, borderless=True,
+                                            anchor=tk.CENTER,
+                                            highlightthickness=0,
+                                            activeforeground=BG_MAIN, activebackground=FG_MAIN,
+                                            focuscolor=HL_MAIN,
+                                            foreground=FG_MAIN, background=BG_MAIN, cursor='hand2',
+                                            command=lambda: self.toggle_amount(20))
+        self.amount_inc_20_btn.place(x=268, y=147, width=30, height=30)
+
+        self.amount_inc_50_btn = tkm.Button(self.action_body_frame, text="50", font=self.FONT_BOLD_SM,
+                                            overrelief='flat', relief='flat', borderwidth=0, bd=0, borderless=True,
+                                            anchor=tk.CENTER,
+                                            highlightthickness=0,
+                                            activeforeground=BG_MAIN, activebackground=FG_MAIN,
+                                            focuscolor=HL_MAIN,
+                                            foreground=FG_MAIN, background=BG_MAIN, cursor='hand2',
+                                            command=lambda: self.toggle_amount(50))
+        self.amount_inc_50_btn.place(x=298, y=147, width=30, height=30)
+
+        self.amount_inc_ALL_btn = tkm.Button(self.action_body_frame, text="All", font=self.FONT_BOLD_SM,
+                                             overrelief='flat', relief='flat', borderwidth=0, bd=0, borderless=True,
+                                             anchor=tk.CENTER,
+                                             highlightthickness=0,
+                                             activeforeground=BG_MAIN, activebackground=FG_MAIN,
+                                             focuscolor=HL_MAIN,
+                                             disabledforeground=FG_NEUTRAL, disabledbackground=BG_MAIN,
+                                             foreground=FG_MAIN, background=BG_MAIN, cursor='hand2',
+                                             command=lambda: self.toggle_amount('ALL'))
+        self.amount_inc_ALL_btn.place(x=328, y=147, width=34, height=30)
+        self.amount_inc_ALL_btn.config(state=tk.DISABLED)
+
+        self.toggles = {
+            '1': {'setting': False, 'widget': self.amount_inc_1_btn},
+            '2': {'setting': False, 'widget': self.amount_inc_2_btn},
+            '5': {'setting': False, 'widget': self.amount_inc_5_btn},
+            '10': {'setting': False, 'widget': self.amount_inc_10_btn},
+            '15': {'setting': False, 'widget': self.amount_inc_15_btn},
+            '20': {'setting': False, 'widget': self.amount_inc_20_btn},
+            '50': {'setting': False, 'widget': self.amount_inc_50_btn},
+            'ALL': {'setting': False, 'widget': self.amount_inc_ALL_btn}
+        }
 
         self.submit_btn = tkm.Button(self.action_body_frame, text="Submit", font=self.FONT_BOLD_SMD,
                                      overrelief='flat', relief='flat', borderwidth=0, bd=0, borderless=True,
@@ -309,13 +418,57 @@ class Window:
                                      highlightthickness=0,
                                      activeforeground=BG_MAIN, activebackground=FG_MAIN,
                                      focuscolor=HL_MAIN,
-                                     foreground=FG_MAIN, background=BG_MAIN,
+                                     foreground=FG_MAIN, background=BG_MAIN, cursor='hand2',
                                      command=self.submit_inputs)
-        self.submit_btn.place(x=135, y=165, width=130, height=50)
+        self.submit_btn.place(x=135, y=200, width=130, height=50)
 
         self.feedback_lbl = tk.Label(self.action_body_frame, text="", font=self.FONT_BOLD_SMD,
                                      foreground=FG_MAIN, background=BG_LIGHT, anchor=tk.CENTER)
-        self.feedback_lbl.place(x=0, y=230, width=400, height=50)
+        self.feedback_lbl.place(x=0, y=260, width=400, height=50)
+
+    def toggle_amount(self, value: str | int):
+        old = self.toggles[str(value)]
+        current = self.var_amount.get()
+        if current == '':
+            current = 0
+
+        if type(value) is str and value == 'ALL':
+            if self.current_action == "Buy":
+                return None
+
+            ticker = self.var_ticker.get()
+            try:
+                if ticker == '':
+                    raise Exception("Invalid ticker")
+                my_stock = self.backend.my_stocks[ticker]
+                amount = my_stock['amount']
+            except Exception:
+                self.feedback_lbl.config(text="Need valid ticker", foreground=FG_RED)
+                return
+            if old['setting']:
+                self.var_amount.set('0')
+            else:
+                self.var_amount.set(str(amount))
+        else:
+            try:
+                if old['setting']:
+                    new_amount = int(current) - value
+                else:
+                    new_amount = int(current) + value
+
+                if new_amount < 0:
+                    new_amount = 0
+
+                self.var_amount.set(str(new_amount))
+            except Exception:
+                pass
+
+        if old['setting']:
+            old['widget'].config(foreground=FG_MAIN, background=BG_MAIN, focuscolor=HL_MAIN)
+        else:
+            old['widget'].config(foreground=BG_MAIN, background=FG_MAIN, focuscolor=BG_MAIN)
+
+        self.toggles[str(value)]['setting'] = not old['setting']
 
     def validate_ticker(self, new_value: str):
         for ticker in self.backend.stocks.keys():
@@ -333,7 +486,7 @@ class Window:
             else:
                 success = self.backend.sell_stock(ticker, amount)
             if success:
-                self.var_ticker.set("")
+                # self.var_ticker.set("")
                 self.var_amount.set("")
                 self.feedback_lbl.config(
                     text=f"{"Bought" if self.current_action == "Buy" else "Sold"} {amount} stocks of {ticker} for {locale.currency(amount * self.backend.stocks[ticker]['price'], grouping=True, symbol=True)}!",
@@ -343,12 +496,17 @@ class Window:
                 feedback_color: str
                 if self.current_action == "Buy":
                     feedback_text = f"Insufficient funds to buy {amount}x {ticker}"
-                    feedback_color=FG_GREEN
+                    feedback_color = FG_GREEN
                 else:
                     feedback_text = f"Insufficient stocks to sell {amount}x {ticker}"
-                    feedback_color=FG_GREEN
+                    feedback_color = FG_GREEN
                 self.feedback_lbl.config(text=feedback_text, foreground=feedback_color)
                 # print(f"Invalid inputs: {ticker} {amount} {self.backend.my_stocks[ticker]['amount']}")
+
+            for amount, value in self.toggles.items():
+                value['setting'] = False
+                value['widget'].config(foreground=FG_MAIN, background=BG_MAIN, focuscolor=HL_MAIN)
+
             self.last_updated_feedback = self.loop
             self.ticker_input.focus()
         except Exception as e:
@@ -359,7 +517,7 @@ class Window:
             w.destroy()
 
         self.leaderboard_entries.clear()
-        changes = self.backend.run_game_loop()
+        self.backend.run_game_loop()
 
         y = 40
         for ticker in self.backend.stocks:
@@ -369,11 +527,14 @@ class Window:
     def set_current_action(self, mode: str):
         self.current_action = mode
         if mode == "Buy":
+            self.amount_inc_ALL_btn.config(state=tk.DISABLED)
             self.action_buy.config(background=FG_MAIN, foreground=BG_MAIN, focuscolor=BG_MAIN)
             self.action_sell.config(background=BG_MAIN, foreground=FG_MAIN, focuscolor=HL_MAIN)
         else:
+            self.amount_inc_ALL_btn.config(state=tk.NORMAL)
             self.action_buy.config(background=BG_MAIN, foreground=FG_MAIN, focuscolor=HL_MAIN)
             self.action_sell.config(background=FG_MAIN, foreground=BG_MAIN, focuscolor=BG_MAIN)
+        self.var_amount.set('0')
         # print(f"Action set to {self.current_action}")
 
     def add_leaderboard_entry(self, y: int, ticker: str, stock: dict):
@@ -425,17 +586,19 @@ class Window:
         for ticker, my_stock in self.backend.my_stocks.items():
             amount = my_stock['amount']
             market_price = self.backend.stocks[ticker]['price']
-            self.amount_lbls[ticker][0].config(foreground=(FG_GREEN
-                                                           if market_price >= self.backend.calculate_buying_price(ticker)
-                                                           else FG_RED)
-                                               if amount > 0
-                                               else FG_LIGHT)
-            self.amount_lbls[ticker][1].config(text=f"{my_stock['amount']}",
-                                               foreground=(FG_GREEN
-                                                           if market_price >= self.backend.calculate_buying_price(ticker)
-                                                           else FG_RED)
-                                               if amount > 0
-                                               else FG_LIGHT)
+            self.amount_lbls[ticker][0].config(
+                foreground=(FG_GREEN
+                            if market_price >= self.backend.calculate_buying_price(ticker)
+                            else FG_RED)
+                if amount > 0
+                else FG_LIGHT)
+            self.amount_lbls[ticker][1].config(
+                text=f"{my_stock['amount']}",
+                foreground=(FG_GREEN
+                            if market_price >= self.backend.calculate_buying_price(ticker)
+                            else FG_RED)
+                if amount > 0
+                else FG_LIGHT)
 
     # def setup_ui_old(self):
     #     lbl = tk.Label(self.frame, text="Strong $XXXX Q3 results imminent", font=self.FONT_BOLD_LG,
