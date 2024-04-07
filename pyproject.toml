@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "stocksim"
-version = "1.0.1"
+version = "1.0.2"
 description = "A stock market simulator written in Python & tkinter"
 authors = ["RyloRiz <91710711+RyloRiz@users.noreply.github.com>"]
 maintainers = ["RyloRiz <91710711+RyloRiz@users.noreply.github.com>"]
@@ -27,6 +27,7 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "^3.12"
 numpy = "^1.26.4"
+tkmacosx = "^1.0.5"
 
 
 [build-system]
